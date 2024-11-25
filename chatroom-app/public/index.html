@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Iconic Group Chat Room</title>
+  <link rel="stylesheet" href="./stylesheets/style.css"> <!-- Link to the CSS file -->
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Welcome to Iconic Group Chat Room</h1>
+      <p>Your gateway to connecting with people in real-time.</p>
+    </header>
+
+    <main>
+      <section class="room-selection">
+        <h2>Select a Chat Room</h2>
+        <select id="roomSelect">
+          <option value="room1">Room 1</option>
+          <option value="room2">Room 2</option>
+          <option value="room3">Room 3</option>
+        </select>
+        <button id="joinRoom">Join Room</button>
+      </section>
+
+      <section class="chat-area" style="display: none;">
+        <h2>Chat Room: <span id="currentRoom"></span></h2>
+        <div id="messages"></div>
+        <textarea id="messageInput" placeholder="Type a message..."></textarea>
+        <button id="sendMessage">Send</button>
+      </section>
+    </main>
+
+    <footer>
+      <p>© 2024 Iconic Group Chat Room. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script> <!-- Link to Socket.io -->
+  <script>
+    const socket = io(); // Connect to the server
+    const roomSelect = document.getElementById('roomSelect');
+    const joinRoomButton = document.getElementById('joinRoom');
+    const chatArea = document.querySelector('.chat-area');
+    const currentRoom = document.getElementById('currentRoom');
+    const messages = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendMessageButton = document.getElementById('sendMessage');
+
+    // Join the selected room
+    joinRoomButton.addEventListener('click', () => {
+      const room = roomSelect.value;
+      socket.emit('join room', room);
+      chatArea.style.display = 'block';
+      currentRoom.textContent = room;
+    });
+
+    // Send a chat message
+    sendMessageButton.addEventListener('click', () => {
+      const msg = messageInput.value;
+      const room = roomSelect.value;
+      socket.emit('chat message', { room, msg });
+      messageInput.value = ''; // Clear input after sending
+    });
+
+    // Listen for chat messages
+    socket.on('chat message', (data) => {
+      const newMessage = document.createElement('p');
+      newMessage.textContent = data.msg;
+      messages.appendChild(newMessage);
+    });
+  </script>
+</body>
+</html>
